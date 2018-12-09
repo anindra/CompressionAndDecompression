@@ -1,0 +1,45 @@
+#include<stdio.h>
+
+int main()
+{
+	FILE *fptr,*fp;
+	fptr = fopen("pgrm.txt","r");
+	fp=fopen("comp.txt","w");
+	char ch1;
+	char ch;
+	unsigned long long nBuffer = 0; //This is enough to store 8 uncompressed characters or 9 compressed. We will only use 8 tho.
+	int nBitsInBuffer = 0;
+	while((ch = fgetc(fptr)) != EOF)
+	{
+		nBuffer |= (unsigned long long)(ch & 0x7F) << nBitsInBuffer;
+		nBitsInBuffer += 7;
+		if (nBitsInBuffer == 7 * 8) { //We have 8 chars in the buffer, dump them
+			while (nBitsInBuffer > 0) {
+				ch1 = nBuffer & 0xFF;
+				printf("%c",ch1);
+				fprintf(fp,"%c",ch1);
+				nBuffer >>= 8;
+				nBitsInBuffer -= 8;
+			}
+			//The following should be redundant, but just to be safe
+			nBitsInBuffer = 0;
+			nBuffer = 0;
+	}
+}
+
+	//Write out whatever is left in the buffer
+	while (nBitsInBuffer > 0) {
+		ch1 = nBuffer & 0xFF;
+		printf("%c",ch1);
+		fprintf(fp,"%c",ch1);
+		//printf("%02x\n",ch);
+		nBuffer >>= 8;
+		nBitsInBuffer -= 8;
+	}
+	
+
+	fclose(fptr);
+	fclose(fp);
+	
+	return 0;
+}
