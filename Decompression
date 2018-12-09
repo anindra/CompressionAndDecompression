@@ -1,0 +1,44 @@
+#include<stdio.h>
+
+int main()
+{
+	FILE *fptr,*fp;
+	fptr = fopen("comp.txt","r");
+	fp=fopen("decomp.txt","w");
+	char ch1;
+	char ch;
+	unsigned long long nBuffer = 0; //This is enough to store 8 uncompressed characters or 9 compressed. We will only use 8 tho.
+	int nBitsInBuffer = 0;
+	while((ch = fgetc(fptr)) != EOF)
+	{
+		//printf("~ %c",ch);
+		nBuffer |= (unsigned long long)(ch & 0xFF) << nBitsInBuffer;
+		nBitsInBuffer += 8;
+		if (nBitsInBuffer == 7 * 8) {
+			while (nBitsInBuffer > 0) {
+				ch1= (nBuffer & 0x7F);
+				printf("%c",ch1);
+				fprintf(fp,"%c",ch1);
+				nBuffer >>= 7;
+				nBitsInBuffer -= 7;
+			}
+		
+		//The following should be redundant, but just to be safe
+		nBitsInBuffer = 0;
+		nBuffer = 0;
+		}
+	}
+	
+	while (nBitsInBuffer > 0) {
+				ch1= (nBuffer & 0x7F);
+				printf("%c",ch1);
+				fprintf(fp,"%c",ch1);
+				nBuffer >>= 7;
+				nBitsInBuffer -= 7;
+			}
+	
+	fclose(fptr);
+	fclose(fp);
+	
+	return 0;
+}
